@@ -8,7 +8,6 @@ future moves: make dictionaries for all sounds, dissonant sounds, consonant soun
 */
 
 
-
 // import everything necessary to make sound.
 import ddf.minim.*;
 import ddf.minim.ugens.*;
@@ -19,6 +18,10 @@ AudioOutput out;
 AudioOutput out1;
 //Wavetable   table;
 PImage smiley;
+//testing screenshot
+PImage[] screenshot;
+int n = 8;
+
 PShape rectangle;
 
 Oscil      wave;
@@ -32,9 +35,7 @@ Frequency newFreq; //theoretically the new frequency
 //array of keys
 boolean [] notes = new boolean[13];
 boolean [] notess = new boolean[8];
-//boolean isZ = false;
-//boolean isR = false;
-
+//not using count for anything
 int count=0;
 //how many keys are being pressed - convert to arduino roip
 //FUTURE: dictionaries
@@ -44,13 +45,19 @@ IntDict dissonance;
 void setup()
 {
   
-  background( 0, 0, 0 );
   // initialize the drawing window
   size(812, 800);
   //not sure how else we can slow down the rate? 
- // frameRate(1);
-  
-  //table = Waves.randomNHarms(16);
+  frameRate(60);
+  smooth(2);
+ 
+ 
+ //load screenshot images
+ 
+ screenshot= new PImage[n];
+ for(int i=0;i<screenshot.length;i++){
+ screenshot[i]=loadImage(str(i) + ".tif");
+}
   //boolean array
   //for loop all of this
   
@@ -64,7 +71,8 @@ void setup()
   }
 
  //image
-  smiley = loadImage("smiley.png");
+//  smiley = loadImage("smiley.png");
+
   // initialize the minim and out objects
   minim = new Minim(this);
   out   = minim.getLineOut();
@@ -73,15 +81,15 @@ void setup()
   //currentFreq = Frequency.ofPitch( "A4" );
   currentFreq = Frequency.ofHertz( 0 );
   newFreq = Frequency.ofHertz(0);
-  wave = new Oscil( currentFreq, 0.80f, Waves.SINE );
-  wave1= new Oscil(newFreq, 0.80f, Waves.SINE);
+  wave = new Oscil( currentFreq, 1, Waves.SINE );
+  wave1= new Oscil(newFreq, 1, Waves.SINE);
   //line(1,1,512,400);
    //wave = new Oscil( currentFreq, 0.9f, Waves.SINE );
  wave.patch( out );
   wave1.patch(out1);
   
   //testing out these things
-  rectangle = createShape(RECT, 500, 400, 300, 300);
+  rectangle = createShape(RECT, 0, 75, width, height);
   rectangle.setStroke(color(0,0,0)); 
   
   //dictionary:
@@ -92,7 +100,8 @@ void setup()
 // draw is run many times
 void draw()
 {
-
+  background(0,0,0);
+  println(frameCount); //figure out if i can reset framecount
   stroke( 255, 255, 255 );
   strokeWeight(1); //play around with stroke weight
   //count stuff
@@ -118,7 +127,7 @@ void draw()
    //line( x1, 49 + out.left.get(i)*50, x2, 50 + out.left.get(i+1)*50);
    line( x1, 150 + out.right.get(i)*50, x2, 150 + out.right.get(i+1)*50);
   }  
-  //second sound
+  //waveform for second note
   for( int i = 0; i < out1.bufferSize() - 1; i++ )
   {
     // find the x position of each buffer value
@@ -131,18 +140,17 @@ void draw()
    line( x1, 150 + out1.right.get(i)*50, x2, 150 + out1.right.get(i+1)*50);
   }  
   
-  //trying a static wave
-   stroke( 128, 0, 0 );
-  for( int i = 0; i < width-1; ++i )
-  {
-    point( i, (height/2 - (height*0.49) * wave1.getWaveform().value( (float)i / width )/3 ));
+  // ----------trying a static wave------------------------------------------
+  // stroke( 128, 0, 0 );
+  //for( int i = 0; i < width-1; ++i )
+  //{
+  //  point( i, (height/2 - (height*0.49) * wave1.getWaveform().value( (float)i / width )/3 ));
   
-  }
+  //}
 
 //make this a whole class!! don't want to do this yet bc arduino
 if ( key == 'z' ){ 
   text("note:C4",100,260);
-  //isRect = true;
 }
   //keyReleased();
   
@@ -162,16 +170,17 @@ if ( key == 'z' ){
  rectangle.setFill(color(0,153,255,80));
  shape(rectangle);
   text("INTERVAL: SAME NOTE!",width/3,height/2);
+  image(screenshot[0],0,500,width,height);
     }
     //Major third
 if ((notes[0]) && (notess[2])) {
   //background(255,0,0,0);
   //fill(255,106,213);
  // rect(0,400,812,450);
- rectangle.setFill(color(0,153,255,80));
+ rectangle.setFill(color(255,255,102,80));
  shape(rectangle);
-  text("INTERVAL: MAJOR THIRD (imperfect)!",width/3,height/2);}
-  //image(smiley,450,350,width/8,height/8);
+  text("INTERVAL: MAJOR THIRD (imperfect)!",width/3,height/2);
+ image(screenshot[2],0,500,width,height);}
   //perfect fifth
   //perfect 4th
 if ((notes[0]) && (notess[3])) {
@@ -180,7 +189,10 @@ if ((notes[0]) && (notess[3])) {
  // rect(0,400,812,450);
  rectangle.setFill(color(0,153,255,80));
  shape(rectangle);
-  text("INTERVAL: PERFECT FOURTH!",width/3,height/2);}
+  text("INTERVAL: PERFECT FOURTH!",width/3,height/2);
+//testing image load
+ image(screenshot[3],0,500,width,height);
+}
   //image(smiley,450,350,width/8,height/8);
   //perfect fifth
   if ((notes[0]) && (notess[4])) {
@@ -189,23 +201,29 @@ if ((notes[0]) && (notess[3])) {
   rectangle.setFill(color(0,153,255,80));
   shape(rectangle);
   //image(smiley,450,350,width/8,height/8);
-  text("INTERVAL: PERFECT FIFTH!",width/3,height/2);}
+  text("INTERVAL: PERFECT FIFTH!",width/3,height/2);
+  image(screenshot[4],0,500,width,height);
+
+}
   
   //M6
   if ((notes[0]) && (notess[5])) {
-  //background(255,0,0,0);
-   //fill(255,106,213);
-  rectangle.setFill(color(0,153,255,80));
+  rectangle.setFill(color(255,255,102,80));
   shape(rectangle);
   //image(smiley,450,350,width/8,height/8);
-  text("INTERVAL: Major 6th (imperfect)!",width/3,height/2);}
+  text("INTERVAL: Major 6th (imperfect)!",width/3,height/2);
+  image(screenshot[5],0,500,width,height);
+
+}
   //octave
   if ((notes[0]) && (notess[7])) {
   //background(255,0,0,0);
   rectangle.setFill(color(0,153,255,80));
   shape(rectangle);
  // image(smiley,450,350,width/8,height/8);
-  text("INTERVAL: OCTAVE!!",width/3,height/2);}
+  text("INTERVAL: OCTAVE!!",width/3,height/2);
+  image(screenshot[7],0,500,width,height);
+}
   
   //dissonant combinations
   // Major 2nd
@@ -213,6 +231,7 @@ if ((notes[0]) && (notess[3])) {
     text("INTERVAL: Major 2nd",width/3,height/2);
     rectangle.setFill(color(255,0,51,80));
     shape(rectangle);
+    image(screenshot[1],0,500,width,height);
   }
   
   //major 7
@@ -220,6 +239,7 @@ if ((notes[0]) && (notess[3])) {
     text("INTERVAL: Major 7th",width/3,height/2);
     rectangle.setFill(color(255,0,51,80));
     shape(rectangle);
+    image(screenshot[6],0,500,width,height);
   }
   
   
@@ -239,7 +259,6 @@ void keyPressed()
   //rect(150,350,40,40);
  // count +=1;
   notes[0] = true;
-  //isRect = true;
 }
   if ( key == 's' ) {//currentFreq = Frequency.ofPitch( "C#4" );
     //diss[1]=true;
@@ -281,9 +300,8 @@ void keyPressed()
   notes[12]=true;
   }
  if (key == ' ') {currentFreq= Frequency.ofHertz(0);
-   //isInterval = false;
-    //isRect = false;
     notes[0]=false;
+    saveFrame();
  }
  if (key == 'p') newFreq= Frequency.ofHertz(340);
   //test new Freq
@@ -319,12 +337,7 @@ void keyPressed()
   notess[7]=true;
    // notes[3]=true;
    }
- // if ( key == 'o' ) newFreq = Frequency.ofPitch( "B4" );
-  //if ( key == 'p' ) newFreq = Frequency.ofPitch( "C#4" );
-  //if ( key == '[') newFreq = Frequency.ofPitch( "E4" );
   if (key == ' '){ newFreq= Frequency.ofHertz(0);
- // isInterval = false;
- // isRect = false;
  //function - clear button
  for( int i = 0; i < notes.length-1; ++i )
   {
@@ -335,28 +348,10 @@ void keyPressed()
     notess[i]=false;
   }
 }
-  
-  //count stuff
-  
-  //testing this new stuff here
-  //if(key == 'a') text("C4",50,100);
-  //if(key == 's') text("C#4",50,100);
-  
-  //boolean test - this isn't really working
-  //if(key=='a' && key=='t') iscChordpressed= true;
-  
-  // note that there are two other static methods for constructing Frequency objects
-  // currentFreq = Frequency.ofHertz( 440 );
-  // currentFreq = Frequency.ofMidiNote( 69 ); 
+
   //updates the frequency
   wave.setFrequency( currentFreq );
-  wave1.setFrequency(newFreq);
-  
-  //if((key=='a')&&(key=='t')){
-  //  rect(45,45,50,200);
-  //}
-   
-   
+  wave1.setFrequency(newFreq);   
 }
 
 void keyReleased(){
