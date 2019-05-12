@@ -17,10 +17,12 @@ Minim minim;
 AudioOutput out;
 AudioOutput out1;
 //Wavetable   table;
-PImage smiley;
+PImage test;
 //testing screenshot
 PImage[] screenshot;
 int n = 8;
+//circles
+Circle [] circles = new Circle[12];
 
 PShape rectangle;
 
@@ -30,37 +32,45 @@ Oscil      wave1;
 Frequency  currentFreq;
 Frequency newFreq; //theoretically the new frequency
 
-//booleans and stuff
+//--------booleans and stuff-------
 
 //array of keys
 boolean [] notes = new boolean[13];
 boolean [] notess = new boolean[8];
+boolean none = true;
 //not using count for anything
 int count=0;
 //how many keys are being pressed - convert to arduino roip
-//FUTURE: dictionaries
-IntDict dissonance;
 
 // setup is run once at the beginning
 void setup()
 {
   
   // initialize the drawing window
-  size(812, 800);
+  size(812, 900);
   //not sure how else we can slow down the rate? 
   frameRate(60);
   smooth(2);
  
- 
+ //circles
+ for (int i = 0; i < circles.length; i++)
+  {
+    circles[i] = new Circle();
+    circles[i].xpos= 40 + 66*i;
+    circles[i].ypos = 410;
+   // println(circles[i].xpos);//40,106,172,238,304,370,436,502,568,634,700,766
+  }
+  
+  //load test image
+//  test = new PImage();
+  test = loadImage("M2.png");
  //load screenshot images
  
  screenshot= new PImage[n];
  for(int i=0;i<screenshot.length;i++){
  screenshot[i]=loadImage(str(i) + ".tif");
 }
-  //boolean array
-  //for loop all of this
-  
+  //boolean array  
   for( int i = 0; i < notes.length-1; ++i )
   {
     notes[i]=false;
@@ -69,9 +79,6 @@ void setup()
   {
     notess[i]=false;
   }
-
- //image
-//  smiley = loadImage("smiley.png");
 
   // initialize the minim and out objects
   minim = new Minim(this);
@@ -89,19 +96,16 @@ void setup()
   wave1.patch(out1);
   
   //testing out these things
-  rectangle = createShape(RECT, 0, 75, width, height);
+  rectangle = createShape(RECT, 0, 55, width,225);
   rectangle.setStroke(color(0,0,0)); 
-  
-  //dictionary:
-  dissonance = new IntDict();
-  
+   
 }
 
 // draw is run many times
 void draw()
 {
   background(0,0,0);
-  println(frameCount); //figure out if i can reset framecount
+ // println(frameCount); //figure out if i can reset framecount
   stroke( 255, 255, 255 );
   strokeWeight(1); //play around with stroke weight
   //count stuff
@@ -139,6 +143,14 @@ void draw()
    stroke(255,113,206);
    line( x1, 150 + out1.right.get(i)*50, x2, 150 + out1.right.get(i+1)*50);
   }  
+    
+  //circles for notes
+  for (int i = 0; i < circles.length; i++)
+  {
+    
+    circles[i].display();
+    
+  }
   
   // ----------trying a static wave------------------------------------------
   // stroke( 128, 0, 0 );
@@ -158,7 +170,6 @@ if ( key == 'z' ){
   /*THIS IS ALL THE POSSIBLE INTERVAL COMBINATIONS THAT ARE CATEGORIZED BY 
   EITHER DISSONANCE OR CONSONANCE. 
   CONSONANCE = BLUE; m3,M3,P4,P5,m6,M6,octave
-  
   DISSONANCE = RED; m2,M2,tritone,m7,M7
   
   */
@@ -228,10 +239,12 @@ if ((notes[0]) && (notess[3])) {
   //dissonant combinations
   // Major 2nd
    if ((notes[0])&&(notess[1])){
-    text("INTERVAL: Major 2nd",width/3,height/2);
+   // text("INTERVAL: Major 2nd",width/3,height/2);
     rectangle.setFill(color(255,0,51,80));
     shape(rectangle);
-    image(screenshot[1],0,500,width,height);
+    //imageMode(CENTER);
+    image(test,150,300,width/2,height/2);
+  //  image(screenshot[1],0,500,width,height);
   }
   
   //major 7
@@ -301,7 +314,7 @@ void keyPressed()
   }
  if (key == ' ') {currentFreq= Frequency.ofHertz(0);
     notes[0]=false;
-    saveFrame();
+   // saveFrame();
  }
  if (key == 'p') newFreq= Frequency.ofHertz(340);
   //test new Freq
