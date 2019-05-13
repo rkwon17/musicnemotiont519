@@ -1,10 +1,16 @@
 /* wow i am trying a new thing here
 
-QUESTIONS - how do you slow down waves??? plz help
-current bugs: lines keep moving - try to understand how waves are being drawn
-to figure out what is happening.
+QUESTIONS -
+currently - boolean for circle toggle - dont want them on keyreleased because then they will only  
+            stay on screen when key is pressed. however, it isn't accuarate representation of what
+            sounds are being played - how to fix (only display the last two keys pressed ? - how to
+            to that?
 
-future moves: make dictionaries for all sounds, dissonant sounds, consonant sounds
+currently - currently can play any notefor both sets of tones in either order
+-  should i make it that you have to play the first note in order to play the second note ? 
+  force function (if firstnote played = true, then can play second note) (ask during user testing)
+  
+  future moves: make dictionaries for all sounds, dissonant sounds, consonant sounds
 */
 
 
@@ -19,10 +25,10 @@ AudioOutput out1;
 //Wavetable   table;
 PImage test;
 //testing screenshot
-PImage[] screenshot;
+//PImage[] screenshot;
 int n = 8;
 //circles
-Circle [] circles = new Circle[12];
+Circle [] circles = new Circle[13];
 //integer for mode - change colors of circles
 int c;
 PShape rectangle;
@@ -39,37 +45,36 @@ Frequency newFreq; //theoretically the new frequency
 boolean [] notes = new boolean[13];
 boolean [] notess = new boolean[8];
 boolean none = true;
+boolean[] circleToggle = new boolean[13]; 
 //not using count for anything
-int count=0;
-//how many keys are being pressed - convert to arduino roip
+int count=0; //not sure if we need this
 
 // setup is run once at the beginning
 void setup()
 { 
   // initialize the drawing window
+  //fullScreen();
   size(812, 900);
   //not sure how else we can slow down the rate? 
   frameRate(60);
-  smooth(2);
- 
+  
  //circles
  for (int i = 0; i < circles.length; i++)
   {
     circles[i] = new Circle();
-    circles[i].xpos= 40 + 66*i;
+    circles[i].xpos= 30 + ((width/13)*i);  // CHANGE LATER
     circles[i].ypos = 410;
-   // println(circles[i].xpos);//40,106,172,238,304,370,436,502,568,634,700,766
+   println(circles[i].xpos);//40,106,172,238,304,370,436,502,568,634,700,766
   }
   
   //load test image
-//  test = new PImage();
   test = loadImage("M2.png");
  //load screenshot images
  
- screenshot= new PImage[n];
- for(int i=0;i<screenshot.length;i++){
- screenshot[i]=loadImage(str(i) + ".tif");
-}
+// screenshot= new PImage[n];
+// for(int i=0;i<screenshot.length;i++){
+// screenshot[i]=loadImage(str(i) + ".tif");
+//}
   //boolean array  
   for( int i = 0; i < notes.length-1; ++i )
   {
@@ -90,9 +95,7 @@ void setup()
   newFreq = Frequency.ofHertz(0);
   wave = new Oscil( currentFreq, 1, Waves.SINE );
   wave1= new Oscil(newFreq, 1, Waves.SINE);
-  //line(1,1,512,400);
-   //wave = new Oscil( currentFreq, 0.9f, Waves.SINE );
- wave.patch( out );
+  wave.patch( out );
   wave1.patch(out1);
   
   //testing out these things
@@ -108,19 +111,15 @@ void draw()
  // println(frameCount); //figure out if i can reset framecount
   stroke( 255, 255, 255 );
   strokeWeight(1); //play around with stroke weight
-  //count stuff
-  //text(count, 5, 40);
-  textSize(15);
+  textSize(16);
+  // WAVE DETAIL TEXT ---------------------------------------------------
   text("Difference in Frequency of the notes: "+(abs(currentFreq.asHz()-newFreq.asHz())),5,45);
-  //count 
   text( "Current Frequency of 1st note in Hertz: " + currentFreq.asHz(), 5, 15 );
-  //doesn't have one for pitch - probably need to make an array of all the different notes
- // text("Current Pitch of 1st note: " + currentFreq.FrequencyasPitch(),5,20);
-  text( "Current Frequency of 2nd note in Hertz: " + newFreq.asHz(), 5, 30 );
+  text( "Current Frequency of 2nd note in Hertz: " + newFreq.asHz(),5, 30 );
   text("Press the space bar to clear sounds. \nPress two keys at the same time for the interval",5,700);
- // text( "Current Frequency as MIDI note: " + currentFreq.asMidiNote(), 5, 30 );
-  
-  // draw the waveforms for sound 1
+// -------------------------------------------------------------------------------------------
+
+// -------- DRAW THE WAVE FORMS --------------------------------------------------------------
   for( int i = 0; i < out.bufferSize() - 1; i++ )
   {
     // find the x position of each buffer value
@@ -143,31 +142,82 @@ void draw()
    stroke(255,113,206);
    line( x1, 150 + out1.right.get(i)*50, x2, 150 + out1.right.get(i+1)*50);
   }  
-    
-//  circles for notes
-  for (int i = 0; i < circles.length; i++)
-  {
-    
-    
-    circles[i].display();
-  
-    
-  }
-  
-  // ----------trying a static wave------------------------------------------
-  // stroke( 128, 0, 0 );
-  //for( int i = 0; i < width-1; ++i )
-  //{
-  //  point( i, (height/2 - (height*0.49) * wave1.getWaveform().value( (float)i / width )/3 ));
-  //}
+// ---------------------------------------------------------------------------------------------
 
-//make this a whole class!! don't want to do this yet bc arduino
-if ( key == 'z' ){ 
-  text("note:C4",100,260);
-}
-  //keyReleased();
-  
-  //boolean stuff
+// ----------------DISPLAY CIRCLES--------------------------------------------------------------
+  //for (int i = 0; i < circles.length; i++)
+  //{ 
+  //  circles[i].display();
+  //}
+//circle booleans
+  if (circleToggle[0]){
+    text("C",30-5,380);
+    //fill(255,255,0);
+    circles[0].display();
+  }
+  if (circleToggle[1]){
+    text("C#",92-5,380);
+    //fill(255,255,0);
+    circles[1].display();
+  }
+  if (circleToggle[2]){
+    text("D",154-5,380);
+    //fill(255,255,0);
+    circles[2].display();
+  }
+  if (circleToggle[3]){
+    text("D#",216-5,380);
+    //fill(255,255,0);
+    circles[3].display();
+  }
+  if (circleToggle[4]){
+    text("E",278-5,380);
+    //fill(255,255,0);
+    circles[4].display();
+  }
+  if (circleToggle[5]){
+    text("F",340-5,380);
+    //fill(255,255,0);
+    circles[5].display();
+  }
+  if (circleToggle[6]){
+    text("F#",402-5,380);
+    //fill(255,255,0);
+    circles[6].display();
+  }
+  if (circleToggle[7]){
+    text("G",464-5,380);
+    //fill(255,255,0);
+    circles[7].display();
+  }
+   if (circleToggle[8]){
+    text("G#",526-5,380);
+    //fill(255,255,0);
+    circles[8].display();
+  }
+   if (circleToggle[9]){
+    text("A",588-5,380);
+    //fill(255,255,0);
+    circles[9].display();
+  }
+    if (circleToggle[10]){
+    text("A#",650-5,380);
+    //fill(255,255,0);
+    circles[10].display();
+  }
+    if (circleToggle[11]){
+    text("B",712-5,380);
+    //fill(255,255,0);
+    circles[11].display();
+  }
+    if (circleToggle[12]){
+    text("C",774-5,380);
+    //fill(255,255,0);
+    circles[12].display();
+  }
+
+
+// INTERVAL COMBOS -----------------------------------------------------------------------------
   /*THIS IS ALL THE POSSIBLE INTERVAL COMBINATIONS THAT ARE CATEGORIZED BY 
   EITHER DISSONANCE OR CONSONANCE. 
   CONSONANCE = BLUE; P4,P5,m6,M6,octave
@@ -177,7 +227,7 @@ if ( key == 'z' ){
   
   //same note
   if ((notes[0]) && (notess[0])) {
- rectangle.setFill(color(0,153,255,80));
+ rectangle.setFill(color(0,153,255,70));
  shape(rectangle);
   text("INTERVAL: SAME NOTE!",width/3,height/2);
   //retake screenshot!!! for some reason doesn't like this one
@@ -186,43 +236,44 @@ if ( key == 'z' ){
     
    //Major third
 if ((notes[0]) && (notess[2])) {
- rectangle.setFill(color(255,255,102,80));
+ rectangle.setFill(color(255,255,102,70));
  shape(rectangle);
   text("INTERVAL: MAJOR THIRD (imperfect)!",width/3,height/2);
- image(screenshot[2],0,500,width,height);}
+//image(screenshot[2],0,500,width,height);
+}
  
   //perfect 4th
 if ((notes[0]) && (notess[3])) {
- rectangle.setFill(color(0,153,255,80));
+ rectangle.setFill(color(0,153,255,70));
  shape(rectangle);
   text("INTERVAL: PERFECT FOURTH!",width/3,height/2);
 //testing image load
- image(screenshot[3],0,500,width,height);
+// image(screenshot[3],0,500,width,height);
 }
   
   //perfect fifth
   if ((notes[0]) && (notess[4])) {
-  rectangle.setFill(color(0,153,255,80));
+  rectangle.setFill(color(0,153,255,70));
   shape(rectangle);
   text("INTERVAL: PERFECT FIFTH!",width/3,height/2);
-  image(screenshot[4],0,500,width,height);
+  //image(screenshot[4],0,500,width,height);
 
 }
   
   //M6
   if ((notes[0]) && (notess[5])) {
-  rectangle.setFill(color(255,255,102,80));
+  rectangle.setFill(color(255,255,102,70));
   shape(rectangle);
   text("INTERVAL: Major 6th (imperfect)!",width/3,height/2);
-  image(screenshot[5],0,500,width,height);
+ // image(screenshot[5],0,500,width,height);
 
 }
   //octave
   if ((notes[0]) && (notess[7])) {
-  rectangle.setFill(color(0,153,255,80));
+  rectangle.setFill(color(0,153,255,70));
   shape(rectangle);
   text("INTERVAL: OCTAVE!!",width/3,height/2);
-  image(screenshot[7],0,500,width,height);
+ // image(screenshot[7],0,500,width,height);
 }
   
   //---------------dissonant combinations---------------
@@ -240,8 +291,9 @@ if ((notes[0]) && (notess[3])) {
     text("INTERVAL: Major 7th",width/3,height/2);
     rectangle.setFill(color(255,0,51,80));
     shape(rectangle);
-    image(screenshot[6],0,500,width,height);
+   //  image(screenshot[6],0,500,width,height);
   } 
+
 }
   
 // change the midi note when pressing keys on the keyboard
@@ -250,76 +302,98 @@ void keyPressed()
   //count +=1;
   if ( key == 'z' ){ currentFreq = Frequency.ofPitch( "C4" );
   notes[0] = true;
+  circleToggle[0] = !circleToggle[0];
   //circles[1].display();
 }
   if ( key == 's' ) {currentFreq = Frequency.ofPitch( "C#4" );
     //this is an option - play note for a set duration(have to figure out math for wave)
    // out.playNote(0,1,"C4");
     notes[1]=true;
+  circleToggle[1] = !circleToggle[1];
   }
   if ( key == 'x' ){currentFreq = Frequency.ofPitch( "D4" );
     notes[2]=true;
+   circleToggle[2] = !circleToggle[2];
   }
   if ( key == 'd' ){ currentFreq = Frequency.ofPitch( "D#4" );
    notes[3]=true;
+  circleToggle[3] = !circleToggle[3];
   }
   if ( key == 'c' ) {currentFreq = Frequency.ofPitch( "E4" );
    notes[4]=true;
+    circleToggle[4] = !circleToggle[4];
   }
   if ( key == 'v' ) {currentFreq = Frequency.ofPitch( "F4" );
     notes[5]=true;
+    circleToggle[5] = !circleToggle[5];
   }
   if ( key == 'g' ){ currentFreq = Frequency.ofPitch( "F#4" );
     notes[6]=true;
+     circleToggle[6] = !circleToggle[6];
   }
   if ( key == 'b' ){currentFreq = Frequency.ofPitch( "G4" );
     notes[7]=true;
+   circleToggle[7] = !circleToggle[7];
   }
   if ( key == 'h' ) {currentFreq = Frequency.ofPitch( "G#4" );
   notes[8]=true;
+   circleToggle[8] = !circleToggle[8];
   }
   if ( key == 'n' ) {currentFreq = Frequency.ofPitch( "A4" );
     notes[9]=true;
+    circleToggle[9] = !circleToggle[9];
   }
   if ( key == 'j') {currentFreq = Frequency.ofPitch( "A#4" );
   notes[10]=true;
+  circleToggle[10] = !circleToggle[10];
   }
   if ( key == 'm'){currentFreq = Frequency.ofPitch( "B4" );
   notes[11]=true;
+  circleToggle[11] = !circleToggle[11];
   }
   if ( key == ',') {currentFreq = Frequency.ofPitch( "C5" );
   notes[12]=true;
+  circleToggle[12] = !circleToggle[12];
   }
  if (key == ' ') {currentFreq= Frequency.ofHertz(0);
     notes[0]=false;
    // saveFrame();
  }
  //second tone
+ //trying to do same keys
   if ( key == 'q' ) {newFreq = Frequency.ofPitch( "C4" );
     notess[0]=true;
-    circles[1].display();
+   //circleToggle[0] = !circleToggle[0];
+   // circles[1].display();
   }
   if ( key == 'w' ){ newFreq = Frequency.ofPitch( "D4" );
   notess[1]=true;
+ circleToggle[2] = !circleToggle[2];
   }
   if ( key == 'e' ) {newFreq = Frequency.ofPitch( "E4" );
     notess[2]=true;
+    circleToggle[4] = !circleToggle[4];
   }
   if ( key == 'r' ){ newFreq = Frequency.ofPitch( "F4" );
      notess[3]=true;
+    circleToggle[5] = !circleToggle[5];
   }
 
   if ( key == 't' ){ newFreq = Frequency.ofPitch( "G4" );
     notess[4]=true;
+   circleToggle[7] = !circleToggle[7];
   }
   if ( key == 'y' ){ newFreq = Frequency.ofPitch( "A4" );
     notess[5]=true;
+   circleToggle[9] = !circleToggle[9];
   }
   if ( key == 'u' ){ newFreq= Frequency.ofPitch( "B4" );
     notess[6]=true;
+   circleToggle[11] = !circleToggle[11];
   }
   if ( key == 'i' ) {newFreq = Frequency.ofPitch( "C5" );
     notess[7]=true;
+    circleToggle[12] = !circleToggle[12];
    }
   if (key == ' '){ newFreq= Frequency.ofHertz(0);
  //function - clear button - clears all the booleans
@@ -331,6 +405,10 @@ void keyPressed()
   {
     notess[i]=false;
   }
+  //toggle
+    for (int i=0; i<circleToggle.length; i++) {
+      circleToggle[i] = false;
+    }
 }
  //updates the frequency
   wave.setFrequency( currentFreq );
