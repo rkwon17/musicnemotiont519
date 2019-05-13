@@ -23,7 +23,8 @@ PImage[] screenshot;
 int n = 8;
 //circles
 Circle [] circles = new Circle[12];
-
+//integer for mode - change colors of circles
+int c;
 PShape rectangle;
 
 Oscil      wave;
@@ -44,8 +45,7 @@ int count=0;
 
 // setup is run once at the beginning
 void setup()
-{
-  
+{ 
   // initialize the drawing window
   size(812, 900);
   //not sure how else we can slow down the rate? 
@@ -144,11 +144,13 @@ void draw()
    line( x1, 150 + out1.right.get(i)*50, x2, 150 + out1.right.get(i+1)*50);
   }  
     
-  //circles for notes
+//  circles for notes
   for (int i = 0; i < circles.length; i++)
   {
     
+    
     circles[i].display();
+  
     
   }
   
@@ -157,7 +159,6 @@ void draw()
   //for( int i = 0; i < width-1; ++i )
   //{
   //  point( i, (height/2 - (height*0.49) * wave1.getWaveform().value( (float)i / width )/3 ));
-  
   //}
 
 //make this a whole class!! don't want to do this yet bc arduino
@@ -169,49 +170,40 @@ if ( key == 'z' ){
   //boolean stuff
   /*THIS IS ALL THE POSSIBLE INTERVAL COMBINATIONS THAT ARE CATEGORIZED BY 
   EITHER DISSONANCE OR CONSONANCE. 
-  CONSONANCE = BLUE; m3,M3,P4,P5,m6,M6,octave
+  CONSONANCE = BLUE; P4,P5,m6,M6,octave
+  IMPERFECT CONSONANCE = YELLOW; m3, M3, m6, M6
   DISSONANCE = RED; m2,M2,tritone,m7,M7
-  
   */
+  
   //same note
   if ((notes[0]) && (notess[0])) {
-  //background(255,0,0,0);
-  //fill(255,106,213);
- // rect(0,400,812,450);
  rectangle.setFill(color(0,153,255,80));
  shape(rectangle);
   text("INTERVAL: SAME NOTE!",width/3,height/2);
-  image(screenshot[0],0,500,width,height);
+  //retake screenshot!!! for some reason doesn't like this one
+  //image(screenshot[0],0,500,width,height);
     }
-    //Major third
+    
+   //Major third
 if ((notes[0]) && (notess[2])) {
-  //background(255,0,0,0);
-  //fill(255,106,213);
- // rect(0,400,812,450);
  rectangle.setFill(color(255,255,102,80));
  shape(rectangle);
   text("INTERVAL: MAJOR THIRD (imperfect)!",width/3,height/2);
  image(screenshot[2],0,500,width,height);}
-  //perfect fifth
+ 
   //perfect 4th
 if ((notes[0]) && (notess[3])) {
-  //background(255,0,0,0);
-  //fill(255,106,213);
- // rect(0,400,812,450);
  rectangle.setFill(color(0,153,255,80));
  shape(rectangle);
   text("INTERVAL: PERFECT FOURTH!",width/3,height/2);
 //testing image load
  image(screenshot[3],0,500,width,height);
 }
-  //image(smiley,450,350,width/8,height/8);
+  
   //perfect fifth
   if ((notes[0]) && (notess[4])) {
-  //background(255,0,0,0);
-   //fill(255,106,213);
   rectangle.setFill(color(0,153,255,80));
   shape(rectangle);
-  //image(smiley,450,350,width/8,height/8);
   text("INTERVAL: PERFECT FIFTH!",width/3,height/2);
   image(screenshot[4],0,500,width,height);
 
@@ -221,28 +213,24 @@ if ((notes[0]) && (notess[3])) {
   if ((notes[0]) && (notess[5])) {
   rectangle.setFill(color(255,255,102,80));
   shape(rectangle);
-  //image(smiley,450,350,width/8,height/8);
   text("INTERVAL: Major 6th (imperfect)!",width/3,height/2);
   image(screenshot[5],0,500,width,height);
 
 }
   //octave
   if ((notes[0]) && (notess[7])) {
-  //background(255,0,0,0);
   rectangle.setFill(color(0,153,255,80));
   shape(rectangle);
- // image(smiley,450,350,width/8,height/8);
   text("INTERVAL: OCTAVE!!",width/3,height/2);
   image(screenshot[7],0,500,width,height);
 }
   
-  //dissonant combinations
+  //---------------dissonant combinations---------------
   // Major 2nd
    if ((notes[0])&&(notess[1])){
    // text("INTERVAL: Major 2nd",width/3,height/2);
     rectangle.setFill(color(255,0,51,80));
     shape(rectangle);
-    //imageMode(CENTER);
     image(test,150,300,width/2,height/2);
   //  image(screenshot[1],0,500,width,height);
   }
@@ -253,30 +241,20 @@ if ((notes[0]) && (notess[3])) {
     rectangle.setFill(color(255,0,51,80));
     shape(rectangle);
     image(screenshot[6],0,500,width,height);
-  }
-  
-  
+  } 
 }
   
-  
-
-
 // change the midi note when pressing keys on the keyboard
-
 void keyPressed()
 {
   //count +=1;
-  //started on A4 not sure if I want to keep it as so.
   if ( key == 'z' ){ currentFreq = Frequency.ofPitch( "C4" );
-  //draw a rectangle
-  //rect(150,350,40,40);
- // count +=1;
   notes[0] = true;
+  //circles[1].display();
 }
-  if ( key == 's' ) {//currentFreq = Frequency.ofPitch( "C#4" );
-    //diss[1]=true;
+  if ( key == 's' ) {currentFreq = Frequency.ofPitch( "C#4" );
     //this is an option - play note for a set duration(have to figure out math for wave)
-    out.playNote(0,1,"C4");
+   // out.playNote(0,1,"C4");
     notes[1]=true;
   }
   if ( key == 'x' ){currentFreq = Frequency.ofPitch( "D4" );
@@ -316,42 +294,35 @@ void keyPressed()
     notes[0]=false;
    // saveFrame();
  }
- if (key == 'p') newFreq= Frequency.ofHertz(340);
-  //test new Freq
-  //if (key == 'w') newFreq=Frequency.ofHertz(300);
+ //second tone
   if ( key == 'q' ) {newFreq = Frequency.ofPitch( "C4" );
     notess[0]=true;
+    circles[1].display();
   }
   if ( key == 'w' ){ newFreq = Frequency.ofPitch( "D4" );
   notess[1]=true;
   }
-  if ( key == 'e' ) {
-    newFreq = Frequency.ofPitch( "E4" );
-    //newFreq=Frequency.ofHertz(339);
-  //isInterval = true;
-  notess[2]=true;
+  if ( key == 'e' ) {newFreq = Frequency.ofPitch( "E4" );
+    notess[2]=true;
   }
   if ( key == 'r' ){ newFreq = Frequency.ofPitch( "F4" );
-   // notes[1]=true;
-   notess[3]=true;
+     notess[3]=true;
   }
 
   if ( key == 't' ){ newFreq = Frequency.ofPitch( "G4" );
-  //  notes[2]=true;
-  notess[4]=true;
+    notess[4]=true;
   }
   if ( key == 'y' ){ newFreq = Frequency.ofPitch( "A4" );
-  notess[5]=true;
+    notess[5]=true;
   }
   if ( key == 'u' ){ newFreq= Frequency.ofPitch( "B4" );
-  notess[6]=true;
+    notess[6]=true;
   }
   if ( key == 'i' ) {newFreq = Frequency.ofPitch( "C5" );
-  notess[7]=true;
-   // notes[3]=true;
+    notess[7]=true;
    }
   if (key == ' '){ newFreq= Frequency.ofHertz(0);
- //function - clear button
+ //function - clear button - clears all the booleans
  for( int i = 0; i < notes.length-1; ++i )
   {
     notes[i]=false;
@@ -361,8 +332,7 @@ void keyPressed()
     notess[i]=false;
   }
 }
-
-  //updates the frequency
+ //updates the frequency
   wave.setFrequency( currentFreq );
   wave1.setFrequency(newFreq);   
 }
