@@ -27,6 +27,7 @@ AudioOutput out1;
 
 PImage[] intervals;
 PImage frequenc;
+PImage soundKey;
 int a = 11;
 
 Circle [] circles = new Circle[13]; //circles
@@ -61,6 +62,7 @@ void setup()
   
   //load title
   frequenc = loadImage("frequenC.png");
+  soundKey = loadImage("key519.png");
 
  //circles
  for (int i = 0; i < circles.length; i++)
@@ -120,12 +122,13 @@ void draw()
   stroke( 255, 255, 255 );
   strokeWeight(1); //play around with stroke weight
   image(frequenc,0,height-300);
+  image(soundKey,width/2+250,height/2+160);
   textSize(17);
   // WAVE DETAIL TEXT ---------------------------------------------------
   text("Difference in Frequency of the notes: "+(abs(currentFreq.asHz()-newFreq.asHz())),850,45+10);
   text( "Current Frequency of 1st note in Hertz: " + currentFreq.asHz(),850, 15+10);
   text( "Current Frequency of 2nd note in Hertz: " + newFreq.asHz(),850, 30+10 );
-  text("Press the space bar to clear sounds. \nPress two keys at the same time for the interval",850,700);
+  //text("Press the space bar to clear sounds. \nPress two keys at the same time for the interval",850,700);
 // ---------------------------------------------
 // }
 // -------- DRAW THE WAVE FORMS --------------------------------------------------------------
