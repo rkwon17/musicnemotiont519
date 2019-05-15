@@ -26,18 +26,20 @@ AudioOutput out1;
 //int n = 8;
 
 PImage[] intervals;
+PImage frequenc;
 int a = 11;
 
 Circle [] circles = new Circle[13]; //circles
 //integer for mode - change colors of circles
 int c;
 PShape rectangle;
+PShape note;
 
 Oscil      wave;
 Oscil      wave1;
 // keep track of the current Frequency so we can display it
 Frequency  currentFreq;
-Frequency newFreq; //theoretically the new frequency
+Frequency newFreq; 
 
 //--------booleans and stuff-------
 
@@ -45,18 +47,21 @@ Frequency newFreq; //theoretically the new frequency
 
 boolean [] notes = new boolean[1];
 boolean [] notess = new boolean[13];
-boolean none = true;
+boolean recent_note = true;
 boolean[] circleToggle = new boolean[13]; 
-//not using count for anything
-int count=0; //not sure if we need this
+//count the number of keys
+int count_key=0; //not sure if we need this
 
 void setup()
 { 
-  //fullScreen();
-  size(812, 900);
+  fullScreen();
+  //size(812, 900);
   //not sure how else we can slow down the rate? 
   frameRate(60);
-  //t = new Tramontana(this,"10.0.1.11");
+  
+  //load title
+  frequenc = loadImage("frequenC.png");
+
  //circles
  for (int i = 0; i < circles.length; i++)
   {
@@ -72,10 +77,6 @@ void setup()
 intervals[i]=loadImage(str(i) + ".png");
 }
  
-// screenshot= new PImage[n];
-// for(int i=0;i<screenshot.length;i++){
-// screenshot[i]=loadImage(str(i) + ".tif");
-//}
   //boolean array  
   for( int i = 0; i < notes.length-1; ++i )
   {
@@ -85,6 +86,7 @@ intervals[i]=loadImage(str(i) + ".png");
   {
     notess[i]=false;
   }
+
 
   // initialize the minim and out objects
   minim = new Minim(this);
@@ -102,24 +104,29 @@ intervals[i]=loadImage(str(i) + ".png");
   //testing out these things
   rectangle = createShape(RECT, 0, 55, width,225);
   rectangle.setStroke(color(0,0,0)); 
-   
+  
+  //note yellow
+  note = createShape(ELLIPSE, 0, 55, circles[1].xpos,circles[1].ypos);
+ 
 }
 
 // draw is run many times
 void draw()
 {
+  
+  
   background(0,0,0);
  // println(frameCount); //figure out if i can reset framecount
   stroke( 255, 255, 255 );
   strokeWeight(1); //play around with stroke weight
-  textSize(16);
+  image(frequenc,0,height-300);
+  textSize(17);
   // WAVE DETAIL TEXT ---------------------------------------------------
-  text("Difference in Frequency of the notes: "+(abs(currentFreq.asHz()-newFreq.asHz())),5,45+5);
-  text( "Current Frequency of 1st note in Hertz: " + currentFreq.asHz(), 5, 15+5 );
-  text( "Current Frequency of 2nd note in Hertz: " + newFreq.asHz(),5, 30+5 );
-  text("Press the space bar to clear sounds. \nPress two keys at the same time for the interval",5,700);
+  text("Difference in Frequency of the notes: "+(abs(currentFreq.asHz()-newFreq.asHz())),850,45+10);
+  text( "Current Frequency of 1st note in Hertz: " + currentFreq.asHz(),850, 15+10);
+  text( "Current Frequency of 2nd note in Hertz: " + newFreq.asHz(),850, 30+10 );
+  text("Press the space bar to clear sounds. \nPress two keys at the same time for the interval",850,700);
 // ---------------------------------------------
-// background(250,0,20);
 // }
 // -------- DRAW THE WAVE FORMS --------------------------------------------------------------
   for( int i = 0; i < out.bufferSize() - 1; i++ )
@@ -127,20 +134,13 @@ void draw()
     // find the x position of each buffer value
     float x1  =  map( i, 0, out.bufferSize(), 0, width );
     float x2  =  map( i+1, 0, out.bufferSize(), 0, width );
-    // draw a line from one buffer position to the next for both channels
-    //line( x1, 49 + out.left.get(i)*50, x2, 50 + out.left.get(i+1)*50);
-   //line( x1, 49 + out.left.get(i)*50, x2, 50 + out.left.get(i+1)*50);
    line( x1, 150 + out.right.get(i)*50, x2, 150 + out.right.get(i+1)*50);
   }  
   //waveform for second note
   for( int i = 0; i < out1.bufferSize() - 1; i++ )
   {
-    // find the x position of each buffer value
     float x1  =  map( i, 0, out1.bufferSize(), 0, width );
     float x2  =  map( i+1, 0, out1.bufferSize(), 0, width );
-    // draw a line from one buffer position to the next for both channels
-    //line( x1, 49 + out.left.get(i)*50, x2, 50 + out.left.get(i+1)*50);
- //  line( x1, 49 + out1.left.get(i)*50, x2, 50 + out1.left.get(i+1)*50);
    stroke(255,113,206);
    line( x1, 150 + out1.right.get(i)*50, x2, 150 + out1.right.get(i+1)*50);
   }  
@@ -152,68 +152,75 @@ void draw()
   //  circles[i].display();
   //}
 //circle booleans
+
+//if (recent_note == true){
+//  note.setFill(color(255,255,102,60));
+//  shape(note);
+//}
+
+
   if (circleToggle[0]){
     text("C",30-5,380);
     //fill(255,255,0);
     circles[0].display();
   }
   if (circleToggle[1]){
-    text("C#",92-5,380);
+    text("C#",128-5,380);
     //fill(255,255,0);
     circles[1].display();
   }
   if (circleToggle[2]){
-    text("D",154-5,380);
+    text("D",226-5,380);
     //fill(255,255,0);
     circles[2].display();
   }
   if (circleToggle[3]){
-    text("D#",216-5,380);
+    text("D#",324-5,380);
     //fill(255,255,0);
     circles[3].display();
   }
   if (circleToggle[4]){
-    text("E",278-5,380);
+    text("E",422-5,380);
     //fill(255,255,0);
     circles[4].display();
   }
   if (circleToggle[5]){
-    text("F",340-5,380);
+    text("F",520-5,380);
     //fill(255,255,0);
     circles[5].display();
   }
   if (circleToggle[6]){
-    text("F#",402-5,380);
+    text("F#",618-5,380);
     //fill(255,255,0);
     circles[6].display();
   }
   if (circleToggle[7]){
-    text("G",464-5,380);
-    //fill(255,255,0);
+    text("G",716-5,380);
+   //fill(255,255,0);
     circles[7].display();
   }
    if (circleToggle[8]){
-    text("G#",526-5,380);
+    text("G#",814-5,380);
     //fill(255,255,0);
     circles[8].display();
   }
    if (circleToggle[9]){
-    text("A",588-5,380);
+    text("A",912-5,380);
     //fill(255,255,0);
     circles[9].display();
   }
     if (circleToggle[10]){
-    text("A#",650-5,380);
+    text("A#",1010-5,380);
     //fill(255,255,0);
     circles[10].display();
   }
     if (circleToggle[11]){
-    text("B",712-5,380);
+    text("B",1108-5,380);
     //fill(255,255,0);
     circles[11].display();
   }
     if (circleToggle[12]){
-    text("C",774-5,380);
+    text("C",1206-5,380);
     //fill(255,255,0);
     circles[12].display();
   }
@@ -226,23 +233,17 @@ void draw()
   IMPERFECT CONSONANCE = YELLOW; m3, M3, m6, M6
   DISSONANCE = RED; m2,M2,tritone,m7,M7
   */
-  
   //same note
- // if ((notes[0]) && (notess[0])) {
- //rectangle.setFill(color(0,153,255,70));
- //shape(rectangle);
- // text("INTERVAL: SAME NOTE!",width/3,height/2);
- // //retake screenshot!!! for some reason doesn't like this one
- // //image(screenshot[0],0,500,width,height);
- //   }
+  if ((notes[0]) && (notess[0])) {
+ rectangle.setFill(color(0,153,255,70));
+ shape(rectangle);
+    }
     
    //Major third - imperfect
 if ((notes[0]) && (notess[3])) {
  rectangle.setFill(color(255,255,102,70));
  shape(rectangle);
   image(intervals[2],150,300,width/2,height/2);
-  //text("INTERVAL: MAJOR THIRD (imperfect)!",width/3,height/2);
-  //image(screenshot[2],0,500,width,height);
 }
 
 // minor third - imperfect
@@ -257,9 +258,6 @@ if ((notes[0]) && (notess[4])) {
  rectangle.setFill(color(0,153,255,70));
  shape(rectangle);
  image(intervals[4],150,300,width/2,height/2);
-  //text("INTERVAL: PERFECT FOURTH!",width/3,height/2);
-//testing image load
-// image(screenshot[3],0,500,width,height);
 }
   
   //perfect fifth
@@ -267,8 +265,6 @@ if ((notes[0]) && (notess[4])) {
   rectangle.setFill(color(0,153,255,70));
   shape(rectangle);
   image(intervals[5],150,300,width/2,height/2);
-//  text("INTERVAL: PERFECT FIFTH!",width/3,height/2);
-  //image(screenshot[4],0,500,width,height);
 
 }
   
